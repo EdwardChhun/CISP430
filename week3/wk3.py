@@ -7,7 +7,9 @@
 # Do i have an unclosed chunk saved into a stack, so that where I can pop and push the items to check the current
 # index of chunk to be found a pair or not
 
+# IMPORTANT - I am using the Stack ADT from Lab
 from lab import Stack
+# ---------------------------------------------
 
 # Init a stack for the open chunk 
 # For each open stack, push into this and
@@ -129,3 +131,39 @@ with open("3.txt", "r") as f:
             incomplete_scores.append(foo(chunk))
             
 print(max(incomplete_scores)) #112689
+
+# Printing Test Cases
+
+test1 = [
+    "{([(<{}[<>[]}>{[]{[(<()>",
+    "[[<[([]))<([[{}[[()]]]",
+    "[{[{({}]{}}([{[{{{}}([]",
+    "[<(<(<(<{}))><([]([]()",
+    "<{([([[(<>()){}]>(<<{{",
+]
+
+test2 = [
+    "[({(<(())[]>[[{[]{<()<>>",
+    "[(()[<>])]({[<{<<[]>>(",
+    "(((({<>}<{<{<>}{[]{[]{}",
+    "{<[[]]>}<{[{[{[]{()[[[]",
+    "<{([{{}}[<[[[<>{}]]]>[]]"
+    
+]
+
+print()
+
+test1_total = 0
+for i in test1:
+    test1_found = checkForCorruption(i.strip())
+    test1_total += illegalCharValue(test1_found)
+
+print(f"Test Case Part 1: {test1_total}")
+
+incomplete_chunk_total = []
+for i in test2:
+    test2_chunk = checkForCorruption_list(i.strip())
+    if test2_chunk is not None: 
+            incomplete_chunk_total.append(foo(test2_chunk))
+            
+print(f"Test Case Part 2: {max(incomplete_chunk_total)}")

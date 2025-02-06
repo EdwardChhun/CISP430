@@ -32,7 +32,6 @@ def findExpected(myList) :
     for i in range(len(myList)):
         # If a mismatched closed was found
         if myList[i] == ")" or myList[i] == "}" or myList[i] == "]" or myList[i] == ">":
-            
             return myList[i]
         
 
@@ -44,28 +43,40 @@ def illegalCharValue(i):
     if i == ">": return 25137 
     return 0
 
-def checkForCorruption(string):          
+def checkForCorruption(string) -> str:          
     openChunk = Stack()
 
     # If there is a closed chunk inside the list, then the chunk behind it is the one who's missing a closed one 
     # supposedly that's missing a pair, so it's expected should be considered (makes sense to me, sorry)
-    testChunk = string
-    myList = []
 
-    for i in testChunk:
+    for i in string:
         # Comparing the top most of stack with the current chunk (being iterated through the string)
         if not openChunk.is_empty() and foundClosedChunk(openChunk.peek(), i):
                 openChunk.pop()
-                myList.pop()
         # If not a paired chunk, then add the unclosed chunk to the stack
         else:
             openChunk.push(i)
-            myList.append(i)
         
         # Uncomment this to see how the stack builds up each iteration
-        # print(test)
+        # print(myList)
         
-    return findExpected(myList)
+    return findExpected(openChunk.items)
+
+def checkForCorruption_list(string) -> list | None:          
+    openChunk = Stack()
+
+    # If there is a closed chunk inside the list, then the chunk behind it is the one who's missing a closed one 
+    # supposedly that's missing a pair, so it's expected should be considered (makes sense to me, sorry)
+    for i in string:
+        if i in "([{<":
+            openChunk.push(i)
+        elif not openChunk.is_empty() and foundClosedChunk(openChunk.peek(), i):
+            openChunk.pop()
+        else:
+            return None  # Corrupted line, ignore it in Part Two
+
+    return openChunk.items if not openChunk.is_empty() else None
+
 
 # If the length is odd, then return that it is an incomplete string right away
 # ): 3 points.
@@ -78,9 +89,43 @@ with open("3.txt", "r") as f:
     for line in f:
         found = checkForCorruption(line.strip()) 
         totalSyntaxScore += illegalCharValue(found)
-    
+
+print("Part 1")
 print(totalSyntaxScore) #294195
 
+print()
 
 # --- PART TWO ---
 # ----------------
+
+# Throw away the corrupted and jjust have the incomplete ones 
+# The checkForCorruption(str) still works and outputs the unclosed chunks
+# create a function that reverses its order and add the scores
+# ): 1 point.
+# ]: 2 points.
+# }: 3 points.
+# >: 4 points.
+# Reverse list to add up the missing chars
+def foo(chunk) -> int:
+    chunk = chunk[::-1]
+    total_missing_score = 0
+    
+    for i in chunk:
+        total_missing_score *= 2
+        if i == "(": total_missing_score +=  1
+        if i == "[": total_missing_score +=  2
+        if i == "{": total_missing_score +=  3
+        if i == "<": total_missing_score +=  4
+    
+    return total_missing_score
+    
+print("Part 2")
+incomplete_scores = []
+
+with open("3.txt", "r") as f:
+    for line in f:
+        chunk = checkForCorruption_list(line.strip())
+        if chunk is not None: 
+            incomplete_scores.append(foo(chunk))
+            
+print(max(incomplete_scores)) #112689

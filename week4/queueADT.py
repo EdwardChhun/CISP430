@@ -15,6 +15,7 @@ class Queue:
     def dequeue(self):
         #Remove an item from the queue
         return self._items.pop()
+
     
     def size(self):
         #Get the number of items in the queue

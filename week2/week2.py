@@ -11,14 +11,14 @@ with open("2.txt", "r") as f:
 for i in range(0, len(code) - 4 + 1):
     chunk = [code[i], code[i+1], code[i+2], code[i+3]]
     if len(set(chunk)) == 4 :
-        print(f"First marker after character {i + 4} which is {"".join(chunk)}")
+        print(f"First marker after character {i + 4} which is {''.join(chunk)}")
         break
 
 # Part 2
 for i in range(0, len(code) - 14 + 1):
     new_chunk = code[i:i+14]
     if len(set(new_chunk)) == 14 :
-        print(f"First marker after character {i + 14} which is {"".join(new_chunk)}")
+        print(f"First marker after character {i + 14} which is {''.join(new_chunk)}")
         break
     
 

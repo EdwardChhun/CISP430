@@ -1,3 +1,42 @@
+class Stack:
+    
+    def __init__(self):
+        self.top = -1
+        self.items= []
+        
+    def is_empty(self):
+        return (self.top == -1);
+
+    def push(self,newItem):
+        self.top+=1
+        self.items.append(newItem);
+
+    def pop(self):
+        if (self.is_empty()):
+            return None
+        else:
+            self.top-=1
+            return self.items.pop()
+
+    def peek(self):
+        if (self.is_empty()):
+            return None
+        else:
+            return self.items[self.top]
+
+    def size(self):
+        return len(self.items)
+    
+    # Trying the max method with O(n) solution
+    def max_method(self) -> int:
+        """
+        Input: Stack
+        Output: Integer
+        """
+        if self.is_empty():
+            return None
+        return max(self.items) # O(n) where it iterates through the stack. 
+    
 # --- PART ONE ---
 # ----------------
 
@@ -8,7 +47,6 @@
 # index of chunk to be found a pair or not
 
 # IMPORTANT - I am using the Stack ADT from Lab
-from lab import Stack
 # ---------------------------------------------
 
 # Init a stack for the open chunk 
@@ -167,3 +205,4 @@ for i in test2:
             incomplete_chunk_total.append(foo(test2_chunk))
             
 print(f"Test Case Part 2: {max(incomplete_chunk_total)}")
+	

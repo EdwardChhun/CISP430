@@ -3,6 +3,7 @@ class Node: #a node of a linked list
     def __init__(self, node_data): #create new node
         self._data = node_data
         self._next = None
+        self._prev = None
 
     def get_data(self): #getter for data
         return self._data
@@ -19,6 +20,14 @@ class Node: #a node of a linked list
         self._next = node_next
 
     next = property(get_next, set_next) #encapsulation for next
+    
+    def get_prev(self, node_prev):
+        self._prev = node_prev
+    
+    def set_prev(self, node_prev):
+        self._prev = node_prev
+    
+    prev = property(get_prev, set_prev)
     
     def __str__(self): #overloads string operator
         return str(self._data)
@@ -123,24 +132,80 @@ class CircularList(LinkedList):
         list_str += "]"
         return list_str
 
+class DoublyLinkedList(LinkedList):
+    def __init__(self):
+        LinkedList.__init__(self)
+        self._tail = None
+        
+    # Extra method I added
+    def append(self, value):
+        new_node = Node(value)
+        if self.is_empty():
+            self._head = new_node
+            self._tail = new_node
+        else:
+            self._tail.next = new_node
+            new_node.prev = self._tail
+            self._tail = new_node
+        self._count += 1
+        
+    def addFirst(self, item):
+        new_node = Node(item)
+        if self.is_empty(): 
+            self._head = new_node
+            self._tail = new_node
+        else:
+            new_node.next = self._head
+            self._head._prev = new_node
+            self._head = new_node
+        self._count += 1 
+        
+    def print(self):
+        temp = self._head
+        values = []
+        while temp:
+            values.append(str(temp.data))
+            temp = temp.next
+        print(",".join(values))    
+
+    def removeLast(self):
+        if self.is_empty():
+            return None
+
+        data = self._tail._data  
+
+        if self._head == self._tail:  
+            self._head = None
+            self._tail = None
+        else:
+            self._tail = self._tail._prev  
+            self._tail.next = None 
+
+        self._count -= 1 
+        return data
+    
+    def search(self, item): 
+        curr = self._head
+        while curr:
+            if curr.data == item:
+                return True
+            curr = curr.next
+        return False
+
+    
 
 if __name__=="__main__":
-    linkedlist = LinkedList()
-    #add your LinkedList test code here
-    linkedlist.add(17)
-    linkedlist.add(38)
-    linkedlist.append(77)
-    linkedlist.search(38)
-    linkedlist.remove(38)
-    linkedlist.search(77)
-    print(linkedlist)
-    my_list = CircularList()
-    print("Edward Chhun")
-    my_list.add(31)
-    my_list.add(29)
-    my_list.add(23)
-    my_list.add(19)
-    my_list.add(17)
-    my_list.add(13)
-    print(my_list.size())
-    print(my_list)
+    dll = DoublyLinkedList()
+    
+    for x in [9, 2, 6, 3, 1]:
+        dll.append(x)
+        
+    dll.removeLast()
+    dll.removeLast()
+    
+    print(dll.search(3))
+    print(dll.search(2))
+    
+    print(dll)
+    
+    

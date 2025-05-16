@@ -1,6 +1,6 @@
 from PIL import Image
 import sys
-import os
+import math
 
 class Octree:
     
@@ -121,21 +121,28 @@ class Octree:
                 max_level = i.level
         return min_cube
 
-def build_and_display(filename):
-    img = Image.open(filename)
-    w, h = img.size
-    ot = Octree()
-    for row in range(h):
-        for col in range(w):
-            r, g, b = img.getpixel((col, row))
-            ot.insert(r, g, b)
-    ot.reduce(256)
+def gaussian_kernel(size, sigma=1):
 
-    for row in range(h):
-        for col in range(w):
-            r, g, b = img.getpixel((col, row))
-            nr, ng, nb = ot.find(r, g, b)
-            img.putpixel((col, row), (nr, ng, nb))
-    img.show()
-    
-    img.save("output/"+filename.strip("input")+"_quantized.bmp")
+    kernel = []
+    center = size // 2
+    sum_val = 0
+
+    for i in range(size):
+        row = []
+        for j in range(size):
+            x = i - center
+            y = j - center
+            value = math.exp(-(x**2 + y**2) / (2 * sigma**2))
+            row.append(value)
+            sum_val += value
+        kernel.append(row)
+
+    # Normalize kernel
+    for i in range(size):
+        for j in range(size):
+            kernel[i][j] /= sum_val
+
+    return kernel
+
+def clamp(val):
+    return max(0, min(255, int(val)))

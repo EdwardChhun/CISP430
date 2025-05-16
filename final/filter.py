@@ -1,5 +1,5 @@
 from PIL import Image
-from helper_functions import build_and_display
+from helper_functions import Octree, gaussian_kernel, clamp
 
 def my_filter(imgPath):
 	img = Image.open(imgPath) #open image
@@ -31,10 +31,68 @@ def my_filter(imgPath):
 	return img
 	
 def quantizer(imgPath):
-	build_and_display(imgPath)
+	img = Image.open(imgPath)
+	w, h = img.size
+	ot = Octree()
+	for row in range(h):
+		for col in range(w):
+			r, g, b = img.getpixel((col, row))
+			ot.insert(r, g, b)
+	ot.reduce(256)
+
+	for row in range(h):
+		for col in range(w):
+			r, g, b = img.getpixel((col, row))
+			nr, ng, nb = ot.find(r, g, b)
+			img.putpixel((col, row), (nr, ng, nb))
+
+	img.show()
+	img.save("output/"+imgName+"_quantized.bmp")
 	
-def blur(imgPath):
-	pass
+# Reference: https://medium.com/@rohit-krishna/coding-gaussian-blur-operation-from-scratch-in-python-f5a9af0a0c0f
+def blur(imgPath, size):
+    img = Image.open(imgPath).convert("RGB")
+    width, height = img.size
+    pixels = img.load()
+
+    if size % 2 == 0:
+        raise ValueError("Kernel size must be odd")
+    kernel = gaussian_kernel(size, sigma=size/3)  # Auto sigma for strength
+    offset = size // 2
+
+    # Create new image for output
+    new_img = Image.new('RGB', (width, height))
+    new_pixels = new_img.load()
+
+    # Apply convolution to each pixel
+    for y in range(offset, height - offset):
+        for x in range(offset, width - offset):
+            r_sum = g_sum = b_sum = 0
+
+            for ky in range(size):
+                for kx in range(size):
+                    nx = x + kx - offset
+                    ny = y + ky - offset
+                    r, g, b = pixels[nx, ny]
+                    weight = kernel[ky][kx]
+                    r_sum += r * weight
+                    g_sum += g * weight
+                    b_sum += b * weight
+
+            new_pixels[x, y] = (
+                clamp(r_sum),
+                clamp(g_sum),
+                clamp(b_sum)
+            )
+
+    # Copy border pixels
+    for y in range(height):
+        for x in range(width):
+            if x < offset or x >= width - offset or y < offset or y >= height - offset:
+                new_pixels[x, y] = pixels[x, y]
+
+    new_img.show()
+    new_img.save("output/"+imgName+"_blurred.bmp")
 
 def edge_detection(imgPath):
 	pass
@@ -54,8 +112,10 @@ if __name__ == "__main__":
 			if filter == "1":
 				quantizer("input/"+imgName+".bmp")
 			elif filter == "2":
-				blur("input/"+imgName+".bmp")
+				blurStrength = int(input("Select odd kernel size (3,5,7...): "))
+				blur("input/"+imgName+".bmp", blurStrength)
 			elif filter == "3":
 				edge_detection("input/"+imgName+".bmp")
 			else:
 				print("Invalid filter")
+    

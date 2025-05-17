@@ -31,8 +31,8 @@ def my_filter(imgPath):
     return img
     
 def quantizer(imgPath):
-    # Time complexity: O(W x H x LogN)
-    # Space complexity: O(N)
+    # Time complexity: O(W x H + L^2)
+    # Space complexity: O(W x H + L)
     img = Image.open(imgPath)
     w, h = img.size
     ot = Octree()

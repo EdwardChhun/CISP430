@@ -7,7 +7,7 @@
 - Video, screenshare
     - Logic flow diagram
     - Demo
-    
+
 # Filters included in this program
 
 ## Quantization filter
@@ -19,3 +19,5 @@
 
 ## Edge Detection
 - Talk about police catching perpetrators by using CCTV footage and analysing the tattoos to detect the distinct gang related tattoos and solving a case of a hit and run.
+- This segways fro the Blur filter, basically a difference in Gaussian Blurs
+- Subtracting each pixel of the image with a stronger Gaussian Blur to a smaller one

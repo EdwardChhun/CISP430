@@ -49,18 +49,18 @@ def quantizer(imgPath):
     img.show()
     output_path = "output/"+imgName+"_quantized.bmp"
     img.save(output_path)
-    return output_path
+    return img
     
 # Reference: https://medium.com/@rohit-krishna/coding-gaussian-blur-operation-from-scratch-in-python-f5a9af0a0c0f
-def blur(imgPath, size):
+def blur(imgPath, size, sigma, dog=False):
     img = Image.open(imgPath).convert("RGB")
     width, height = img.size
     pixels = img.load()
-
+ 
     if size % 2 == 0:
         raise ValueError("Kernel size must be odd")
-    kernel = gaussian_kernel(size, sigma=size/3)  # Auto sigma for strength
-    offset = size // 2
+    kernel = gaussian_kernel(size, sigma)
+    offset = size // 2		
 
     # Create new image for output
     new_img = Image.new('RGB', (width, height))
@@ -92,14 +92,55 @@ def blur(imgPath, size):
         for x in range(width):
             if x < offset or x >= width - offset or y < offset or y >= height - offset:
                 new_pixels[x, y] = pixels[x, y]
-
+            
     new_img.show()
     output_path = "output/"+imgName+"_blurred.bmp"
     new_img.save(output_path)
-    return output_path
+    return new_img
 
+# Also known as Difference of Gaussians 
+# Subtracting pixel by pixel of an image applied with larger gauss kernel with smaller
 def edge_detection(imgPath):
-    pass
+    # Apply two types of Gauss on the same image with different kernel sizes
+    # Subtract the results to detect edges (Difference of Gaussians)
+    img = Image.open(imgPath).convert("RGB")
+    
+    # Apply Gaussian blur with smaller kernel
+    small_blur = blur(imgPath, 3, 1.0)
+    small_pixels = small_blur.load()
+    
+    # Apply Gaussian blur with larger kernel
+    large_blur = blur(imgPath, 5, 2.0) 
+    large_pixels = large_blur.load()
+    
+    # Create output image
+    w, h = img.size
+    output = Image.new('RGB', (w,h))
+    output_pixels = output.load()
+    
+    # Calculate difference between blurs
+    for x in range(w):
+        for y in range(h):
+            r1,g1,b1 = small_pixels[x,y]
+            r2,g2,b2 = large_pixels[x,y]
+            
+            # Take absolute difference for each channel
+            diff_r = abs(r1 - r2)
+            diff_g = abs(g1 - g2)
+            diff_b = abs(b1 - b2)
+            
+            # Amplify the differences to make edges more visible
+            output_pixels[x,y] = (
+                clamp(diff_r * 2),
+                clamp(diff_g * 2), 
+                clamp(diff_b * 2)
+            )
+    
+    output.show()
+    output_path = "output/"+imgName+"_edges.bmp"
+    output.save(output_path)
+    return output      
+    
 
 if __name__ == "__main__":
     # Create a normal user interface for terminal, so they can select image/filter
@@ -118,12 +159,10 @@ if __name__ == "__main__":
             filter = input("Enter the number of the filter you want to apply: ")
             
             if filter == "1":
-                current_path = quantizer(current_path)
-                imgName = imgName+"_quantized"
+                quantizer(current_path)
             elif filter == "2":
                 blurStrength = int(input("Select odd kernel size (3,5,7...): "))
-                current_path = blur(current_path, blurStrength)
-                imgName = imgName+"_blurred"
+                blur(current_path, blurStrength, blurStrength/3)
             elif filter == "3":
                 edge_detection(current_path)
             else:

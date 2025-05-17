@@ -31,6 +31,8 @@ def my_filter(imgPath):
     return img
     
 def quantizer(imgPath):
+    # Time complexity: O(W x H x LogN)
+    # Space complexity: O(N)
     img = Image.open(imgPath)
     w, h = img.size
     ot = Octree()
@@ -53,6 +55,8 @@ def quantizer(imgPath):
     
 # Reference: https://medium.com/@rohit-krishna/coding-gaussian-blur-operation-from-scratch-in-python-f5a9af0a0c0f
 def blur(imgPath, size, sigma, dog=False):
+    # Time complexity: O(W x H x K^2) where K is the kernel size
+    # Space complexity: O(W x H)
     img = Image.open(imgPath).convert("RGB")
     width, height = img.size
     pixels = img.load()
@@ -87,7 +91,7 @@ def blur(imgPath, size, sigma, dog=False):
                 clamp(b_sum)
             )
 
-    # Copy border pixels
+    # Copy border pixels, due to neighboring pixels not existing therefore the gauss kernel won't be able to process
     for y in range(height):
         for x in range(width):
             if x < offset or x >= width - offset or y < offset or y >= height - offset:
@@ -101,6 +105,10 @@ def blur(imgPath, size, sigma, dog=False):
 # Also known as Difference of Gaussians 
 # Subtracting pixel by pixel of an image applied with larger gauss kernel with smaller
 def edge_detection(imgPath):
+    
+    # Time complexity O(W x H x (3^2 + 5^2)) This is because we're using a 3x3 and 5x5 kernel
+    # Space Complexity O(W x H)
+    
     # Apply two types of Gauss on the same image with different kernel sizes
     # Subtract the results to detect edges (Difference of Gaussians)
     img = Image.open(imgPath).convert("RGB")
